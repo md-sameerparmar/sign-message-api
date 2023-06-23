@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            margin-top: 2em;
+            text-align: center;
+        }
+
+        input[type=text] {
+            width: 50%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            box-sizing: border-box;
+        }
+
+        input[type=button] {
+            width: 20%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            box-sizing: border-box;
+        }
+
+        #DisplayMsg {
+            background-color: lightgray;
+        }
+
+        pre{
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+    <input type="text" name="" id="userInput" placeholder="Write message here🙋‍♂️"> <br> <br>
+    <input type="button" value="Sign Message" onclick="messageSigning()">
+    <h1 id="DisplayMsg"></h1>
+    <pre id="myText" ></pre>
+
+    <script src="./nacl.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/gh/ethereumjs/browser-builds/dist/ethereumjs-tx/ethereumjs-tx-1.3.3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tweetnacl-util@0.15.0/nacl-util.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.1/nacl.min.js"></script>
+    <script>
+        async function messageSigning() {
+            const inputMsg = document.getElementById('userInput').value;
+
+            if (!inputMsg) {
+                alert("Message Cannot be empty.🙅‍♂️")
+            } else {
+                const message = inputMsg;
+                const nonce = 'random_string';
+
+                try {
+                    const response = await window.aptos.signMessage({
+                        message,
+                        nonce,
+                    });
+                    console.log(response);
+                    const { publicKey } = await window.aptos.account();
+                    // const publicKey = "0x38cdaf7d35b44a853a5e3d028affbce6cb7f6eb8fffb13390ecd0c2f1632c8fa";
+                    // console.log(publicKey);
+
+                    // Remove the 0x prefix
+                    const key = publicKey.slice(2, 66);
+
+
+                    const verified = nacl.sign.detached.verify(
+                        ethereumjs.Buffer.Buffer.from(response.fullMessage),
+                        ethereumjs.Buffer.Buffer.from(response.signature, 'hex'),
+                        ethereumjs.Buffer.Buffer.from(key, 'hex'),
+                    );
+                    console.log(verified);
+
+                    if (verified) {
+                        let displayMsg = document.getElementById("DisplayMsg").innerHTML = "Message is Signed!";
+                    } else {
+                        let displayMsg = document.getElementById("DisplayMsg").innerHTML = "Message is not Signed!";
+                        let displayMsgClr = document.getElementById("DisplayMsg").style.color = "red";
+                    }
+
+                    var data = { response };
+                    document.getElementById("myText").innerHTML = JSON.stringify(data, null, 4);
+
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+
+        }
+
+        
+    </script>
+</body>
+
+</html>

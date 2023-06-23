@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://requirejs.org/docs/release/2.3.5/minified/require.js"></script>
+    <!-- <script src="./one.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/gh/ethereumjs/browser-builds/dist/ethereumjs-tx/ethereumjs-tx-1.3.3.min.js"></script>
+</head>
+
+<body>
+    <h1>Hello!</h1>
+    <button onclick="messageSigning()">Sign a Message</button>
+    <button onclick="connection()">Connect Wallet</button>
+
+    <!-- ----------Connect Wallet Code---------- -->
+
+    
+    <script src="./nacl.js"></script>
+    
+    <script>
+        const getAptosWallet = () => {
+            if ('aptos' in window) {
+                return window.aptos;
+            } else {
+                window.open('https://petra.app/', `_blank`);
+            }
+        };
+
+        async function connection() {
+            // alert("Wallet is already conected");
+            const wallet = getAptosWallet();
+            try {
+                const response = await wallet.connect();
+                // console.log(response); // { address: string, address: string }
+
+                const account = await wallet.account();
+                // console.log(account); // { address: string, address: string }
+            } catch (error) {
+                // { code: 4001, message: "User rejected the request."}
+            }
+        }
+    </script>
+    <!-- ----------Message Signing Code---------- -->
+    <script>
+        
+        async function messageSigning() {
+            const message = 'hello';
+            const nonce = 'random_string';
+
+            try {
+                const response = await window.aptos.signMessage({
+                    message,
+                    nonce,
+                });
+                const { publicKey } = await window.aptos.account();
+                //   const publickey = Buffer.from(pub.substring(2), 'hex');
+                // Remove the 0x prefix
+                  const key = publicKey.slice(2, 66);
+                const verified = nacl.sign.detached.verify(
+                    ethereumjs.Buffer.Buffer.from(response.fullMessage),
+                    ethereumjs.Buffer.Buffer.from(response.signature, 'hex'),
+                    ethereumjs.Buffer.Buffer.from(key, 'hex'),
+                );
+                console.log(verified);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+
+</html>

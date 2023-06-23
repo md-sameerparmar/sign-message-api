@@ -1,0 +1,17 @@
+{
+  "name": "sign_message_api",
+  "version": "1.0.0",
+  "description": "sign a message by using Petra Wallet API",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sameer",
+  "license": "ISC",
+  "dependencies": {
+    "aptos": "^1.8.2",
+    "express": "^4.18.2",
+    "js-nacl": "^1.4.0",
+    "tweetnacl": "^1.0.3"
+  }
+}
